@@ -56,6 +56,8 @@ snowflake-poc/
 
 ## 🧪 Flujos Implementados
 
+![BD en snowflake](pictures/RAPPI-POC.png)
+
 ### 1. **Ingesta de Datos**
 - Carga de `BankChurners.json`: Datos de clientes bancarios con información demográfica y financiera.
 ![Tabla en capa raw de BankChurners](pictures/queryrawbank.png)
