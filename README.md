@@ -58,18 +58,25 @@ snowflake-poc/
 
 ### 1. **Ingesta de Datos**
 - Carga de `BankChurners.json`: Datos de clientes bancarios con información demográfica y financiera.
+![Tabla en capa raw de BankChurners](pictures/queryrawbank.png)
+
 - Carga de `Coffee_Sales_Raw_Data.xlsx`: Ventas de café con `Product ID` codificado (ej: R-M-1).
+![Tabla en capa raw de Coffe_Sales](pictures/queryrawcoffee.png)
 
 ### 2. **Transformación Inteligente**
 - Extracción de tipo de café, tipo de tostado y tamaño desde `Product ID`.
 - Estimación de `Unit Price` basada en reglas de negocio (se propuso).
 - Cálculo automático de `Sales = Quantity × Unit Price`.
 - Limpieza de columnas irrelevantes en json.
+![Tabla en capa curated de BankChurners](pictures/querycuratedbank.png)
+![Tabla en capa curated de Coffe_Sales](pictures/querycuratedcoffee.png)
 
 ### 3. **Modelamiento por Capas (Medallion Architecture)**
 - **Raw Layer**: Datos crudos cargados tal cual.
 - **Curated Layer**: Datos limpios, normalizados y validados.
 - **Business Layer**: Agregaciones listas para BI (ventas diarias, riesgo de churn).
+![Tabla en capa business de BankChurners](pictures/querybusinessbank.png)
+![Tabla en capa business de Coffe_Sales](pictures/querybusinesscoffee.png)
 
 ---
 
