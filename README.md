@@ -68,7 +68,7 @@ BUSINESS (Gold Layer)
 | **Almacenamiento** | Snowflake (Standard Edition) | - |
 | **SQL** | Snowflake SQL | - |
 | **Infraestructura** | GCP (Snowflake) | - |
-| **Seguridad** | PAT (Programmatic Access Token), variables de entorno |
+| **Seguridad** | PAT (Programmatic Access Token), variables de entorno | - |
 | **CI/CD** | (Preparado para Airflow/dbt) | - |
 
 ---
@@ -222,6 +222,8 @@ snowflake-poc/
 SELECT * FROM BPOLABS_POC.BUSINESS.V_ORDERS_SALES_PROFIT_BY_YEAR;
 ```
 
+![V_ORDERS_SALES_PROFIT_BY_YEAR](snowflake-poc/images/v1.jpg "ORDERS SALES PROFIT BY YEAR")
+
 **Métricas:** Total de órdenes, clientes únicos, ventas, ganancia, margen, crecimiento
 
 ### 2. Órdenes por Día de la Semana 2017 (Pregunta 2)
@@ -229,6 +231,8 @@ SELECT * FROM BPOLABS_POC.BUSINESS.V_ORDERS_SALES_PROFIT_BY_YEAR;
 ```
 SELECT * FROM BPOLABS_POC.BUSINESS.V_ORDERS_BY_DAY_OF_WEEK_2017;
 ```
+
+![V_ORDERS_BY_DAY_OF_WEEK_2017](snowflake-poc/images/v2.jpg "ORDERS BY DAY OF WEEK 2017")
 
 **Insights:** Viernes es el día más fuerte (22% del volumen), Jueves muestra anomalía (-90%)
 
@@ -238,6 +242,8 @@ SELECT * FROM BPOLABS_POC.BUSINESS.V_ORDERS_BY_DAY_OF_WEEK_2017;
 SELECT * FROM BPOLABS_POC.BUSINESS.V_SALES_BY_SEGMENT_ALL_YEARS;
 ```
 
+![V_SALES_BY_SEGMENT_ALL_YEARS](snowflake-poc/images/v3.jpg "SALES BY SEGMENT ALL YEARS")
+
 **Análisis:** Desempeño por segmento (Consumer, Corporate, Home Office) con margen por año
 
 ### 4. Top 10 Productos 2017 (Pregunta 4)
@@ -246,11 +252,15 @@ SELECT * FROM BPOLABS_POC.BUSINESS.V_SALES_BY_SEGMENT_ALL_YEARS;
 SELECT * FROM BPOLABS_POC.BUSINESS.V_TOP_10_PRODUCTS_2017;
 ```
 
+![V_TOP_10_PRODUCTS_2017](snowflake-poc/images/v4.jpg "TOP 10 PRODUCTS 2017")
+
 ### 5. Bottom 10 Productos 2015 (Pregunta 5)
 
 ```
 SELECT * FROM BPOLABS_POC.BUSINESS.V_BOTTOM_10_PRODUCTS_2015;
 ```
+
+![V_BOTTOM_10_PRODUCTS_2015](snowflake-poc/images/v5.jpg "BOTTOM 10 PRODUCTS 2015")
 
 ### 6. Órdenes Devueltas 2015 (Pregunta 6)
 
@@ -258,11 +268,15 @@ SELECT * FROM BPOLABS_POC.BUSINESS.V_BOTTOM_10_PRODUCTS_2015;
 SELECT * FROM BPOLABS_POC.BUSINESS.V_RETURNED_ORDERS_2015;
 ```
 
+![V_RETURNED_ORDERS_2015](snowflake-poc/images/v6.jpg "RETURNED ORDERS 2015")
+
 ### 7. Devoluciones por Gerente Regional 2015 (Pregunta 7)
 
 ```
 SELECT * FROM BPOLABS_POC.BUSINESS.V_RETURNED_BY_MANAGER_2015;
 ```
+
+![V_RETURNED_BY_MANAGER_2015](snowflake-poc/images/v7.jpg "RETURNED BY MANAGER 2015")
 
 **Análisis Regional:**
 - Central (Emily Burns): 6.24% tasa de devolución
@@ -275,6 +289,9 @@ SELECT * FROM BPOLABS_POC.BUSINESS.V_RETURNED_BY_MANAGER_2015;
 SELECT * FROM BPOLABS_POC.BUSINESS.V_COMPANY_PERFORMANCE_KPI;
 ```
 
+![V_COMPANY_PERFORMANCE_KPI_1](snowflake-poc/images/v8_1.jpg "COMPANY PERFORMANCE KPI")
+![V_COMPANY_PERFORMANCE_KPI_2](snowflake-poc/images/v8_2.jpg "COMPANY PERFORMANCE KPI")
+
 ### Análisis Críticos Adicionales
 
 **Rentabilidad de Productos:**
@@ -282,15 +299,21 @@ SELECT * FROM BPOLABS_POC.BUSINESS.V_COMPANY_PERFORMANCE_KPI;
 SELECT * FROM BPOLABS_POC.BUSINESS.V_PRODUCT_PROFITABILITY_ANALYSIS;
 ```
 
+![V_PRODUCT_PROFITABILITY_ANALYSIS](snowflake-poc/images/va_1.jpg "PRODUCT PROFITABILITY ANALYSIS")
+
 **Órdenes No Rentables:**
 ```
 SELECT * FROM BPOLABS_POC.BUSINESS.V_UNPROFITABLE_ORDERS_ANALYSIS;
 ```
 
+![V_UNPROFITABLE_ORDERS_ANALYSIS](snowflake-poc/images/va_2.jpg "UNPROFITABLE ORDERS ANALYSIS")
+
 **Desempeño Regional:**
 ```
 SELECT * FROM BPOLABS_POC.BUSINESS.V_REGIONAL_PERFORMANCE;
 ```
+
+![V_REGIONAL_PERFORMANCE](snowflake-poc/images/va_3.jpg "REGIONAL PERFORMANCE")
 
 ---
 
@@ -368,7 +391,7 @@ Para reportar bugs o sugerir mejoras, abrir un [Issue](https://github.com/tu-usu
 ## Changelog
 
 ### v1.0.0 (2025-10-23)
-- ✅ Pipeline completo funcional
-- ✅ 8 vistas de análisis principales
-- ✅ Validación de datos
-- ✅ Documentación completa
+- Pipeline completo funcional
+- 8 vistas de análisis principales
+- Validación de datos
+- Documentación completa
