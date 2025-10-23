@@ -1,0 +1,24 @@
+# config/config.yaml
+ingestion:
+  sources:
+    - id: eu_superstore # Identificador único de la fuente ejmplo:Sample_EU
+      path: ./data/Sample_EU.xlsx # Ruta al archivo TYPE: excel
+      type: excel # Tipo de archivo (excel, csv, json)
+      schema: RAW # Esquema destino en Snowflake
+      
+      tables:
+        - sheet: Orders # Nombre de la hoja en el archivo TYPE: excel, con PATH: ./data/Sample_EU.xlsx
+          name: ORDERS # Nombre de la tabla en Snowflake
+          method: put_copy_into # Método de ingesta (put_copy_into o write_pandas)
+          
+        - sheet: Returns
+          name: RETURNS
+          method: write_pandas
+          
+        - sheet: People
+          name: PEOPLE
+          method: write_pandas
+
+  settings:
+    create_csv: True  # false: No crea CSVs intermedios
+    temp_dir: ./data/temp # Directorio temporal para archivos intermedios

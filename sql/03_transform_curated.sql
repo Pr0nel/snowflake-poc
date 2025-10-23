@@ -1,79 +1,121 @@
--- 03_transform_curated.sql
+-- sql/03_transform_curated.sql
+-- Transformaciones de RAW a SILVER (CURATED)
+-- Enfoque: Preparar datos para análisis de rentabilidad y desempeño operacional
 
-USE SCHEMA CURATED;
+USE DATABASE ${DB};
+USE SCHEMA ${SCHEMA_SILVER};
 
--- Tabla de clientes bancarios
-CREATE OR REPLACE TABLE BANK_CUSTOMERS AS
+-- 1. TABLA CURATED: ÓRDENES ENRIQUECIDAS
+-- Esta es la tabla central. Todo fluye desde aquí.
+
+CREATE OR REPLACE TABLE CURATED_ORDERS AS
 SELECT
-    "clientnum",
-    CASE WHEN "attrition_flag" = 'Existing Customer' THEN 0 ELSE 1 END AS is_churned,
-    "customer_age",
-    "gender",
-    "dependent_count",
-    "education_level",
-    "marital_status",
-    "income_category",
-    "card_category",
-    "months_on_book",
-    "total_relationship_count",
-    "months_inactive_12_mon",
-    "contacts_count_12_mon",
-    "credit_limit",
-    "total_revolving_bal",
-    "avg_open_to_buy",
-    "total_amt_chng_q4_q1",
-    "total_trans_amt",
-    "total_trans_ct",
-    "total_ct_chng_q4_q1",
-    "avg_utilization_ratio"
-FROM RAPPI_POC.RAW.BANK_CHURNERS_RAW;
+    -- Identificadores
+    o.ROW_ID,
+    o.ORDER_ID,
+    o.PRODUCT_ID,
+    o.CUSTOMER_ID,
+    
+    -- Fechas (dimensiones temporales)
+    o.ORDER_DATE,
+    YEAR(o.ORDER_DATE) AS ORDER_YEAR,
+    MONTH(o.ORDER_DATE) AS ORDER_MONTH,
+    DAYOFWEEK(o.ORDER_DATE) AS DAY_OF_WEEK,
+    DAYNAME(o.ORDER_DATE) AS DAY_NAME,
+    
+    -- Geografía y segmentación
+    o.REGION,
+    o.SEGMENT,
+    
+    -- Producto
+    o.PRODUCT_NAME,
+    o.CATEGORY,
+    o.SUB_CATEGORY,
+    
+    -- Operacional
+    o.QUANTITY,
+    o.DISCOUNT,
+    o.SALES,
+    o.PROFIT,
+    
+    -- Cálculos derivados (métricas críticas de negocio)
+    ROUND(o.PROFIT / NULLIF(o.SALES, 0) * 100, 2) AS PROFIT_MARGIN_PCT,
+    CASE 
+        WHEN o.PROFIT < 0 THEN 'LOSS'
+        WHEN o.PROFIT = 0 THEN 'BREAKEVEN'
+        WHEN o.PROFIT / NULLIF(o.SALES, 0) < 0.05 THEN 'LOW_MARGIN'
+        ELSE 'HEALTHY'
+    END AS PROFITABILITY_STATUS,
+    
+    -- Flag de devolución
+    CASE WHEN r.ORDER_ID IS NOT NULL THEN 1 ELSE 0 END AS IS_RETURNED,
+    
+    -- Metadatos
+    CURRENT_TIMESTAMP() AS LOADED_AT
+FROM ${DB}.${SCHEMA_BRONZE}.${TABLE_01} o
+LEFT JOIN ${DB}.${SCHEMA_BRONZE}.${TABLE_02} r 
+    ON o.ORDER_ID = r.ORDER_ID AND UPPER(r.RETURNED) = 'YES'
+ORDER BY o.ORDER_ID, o.PRODUCT_ID;
 
--- Tabla de ventas de cafe
-CREATE OR REPLACE TABLE COFFEE_SALES AS
+-- 2. TABLA CURATED: PEOPLE (GERENTES REGIONALES)
+CREATE OR REPLACE TABLE CURATED_PEOPLE AS
 SELECT
-    "order_id",
-    "order_date",
-    "customer_id",
-    -- Extraer tipo de cafe
-    CASE 
-        WHEN SUBSTRING("product_id", 1, 1) = 'R' THEN 'Regular'
-        WHEN SUBSTRING("product_id", 1, 1) = 'E' THEN 'Espresso'
-        WHEN SUBSTRING("product_id", 1, 1) = 'L' THEN 'Latte'
-        WHEN SUBSTRING("product_id", 1, 1) = 'A' THEN 'Americano'
-        WHEN SUBSTRING("product_id", 1, 1) = 'M' THEN 'Mocha'
-        ELSE 'Unknown'
-    END AS "coffee_type",
-    -- Extraer tipo de tostato
-    CASE 
-        WHEN SUBSTRING("product_id", 2, 1) = 'S' THEN 'Light'
-        WHEN SUBSTRING("product_id", 2, 1) = 'M' THEN 'Medium'
-        WHEN SUBSTRING("product_id", 2, 1) = 'D' THEN 'Dark'
-        ELSE 'Unknown'
-    END AS "roast_type",
-    -- Extraer tamanio en onzas
-    TRY_CAST(SUBSTRING("product_id", 3) AS FLOAT) AS "size",
-    -- Estimar precio unitario
-    COALESCE("unit_price", 
-        CASE 
-            WHEN SUBSTRING("product_id", 1, 1) = 'R' THEN 5.0
-            WHEN SUBSTRING("product_id", 1, 1) = 'E' THEN 3.0
-            WHEN SUBSTRING("product_id", 1, 1) = 'L' THEN 6.0
-            WHEN SUBSTRING("product_id", 1, 1) = 'A' THEN 4.5
-            WHEN SUBSTRING("product_id", 1, 1) = 'M' THEN 6.5
-            ELSE 5.0
-        END
-    ) AS "unit_price",
-    -- Calcular Resultado: Sales
-    COALESCE("unit_price", 
-        CASE 
-            WHEN SUBSTRING("product_id", 1, 1) = 'R' THEN 5.0
-            WHEN SUBSTRING("product_id", 1, 1) = 'E' THEN 3.0
-            WHEN SUBSTRING("product_id", 1, 1) = 'L' THEN 6.0
-            WHEN SUBSTRING("product_id", 1, 1) = 'A' THEN 4.5
-            WHEN SUBSTRING("product_id", 1, 1) = 'M' THEN 6.5
-            ELSE 5.0
-        END
-    ) * "quantity" AS "sales"
-FROM RAW.COFFEE_SALES_RAW
-WHERE "order_id" IS NOT NULL
-AND "order_date" IS NOT NULL;
+    REGION,
+    PEOPLE AS REGIONAL_MANAGER,
+    CURRENT_TIMESTAMP() AS LOADED_AT
+FROM ${DB}.${SCHEMA_BRONZE}.${TABLE_03}
+WHERE REGION IS NOT NULL AND PEOPLE IS NOT NULL;
+
+-- VALIDACIONES DE INTEGRIDAD
+
+-- Validar datos con fecha
+SELECT COUNT(*) AS ORDERS_WITHOUT_DATE
+FROM CURATED_ORDERS
+WHERE ORDER_DATE IS NULL;
+
+-- Validar duplicados
+SELECT ORDER_ID, PRODUCT_ID, COUNT(*) AS DUPLICATE_COUNT
+FROM CURATED_ORDERS
+GROUP BY ORDER_ID, PRODUCT_ID
+HAVING COUNT(*) > 1;
+
+-- Valida si la suma de PROFIT de órdenes = total
+WITH profit_check AS (
+    SELECT
+        SUM(PROFIT) AS total_profit,
+        (SELECT SUM(order_profit)
+        FROM (
+            SELECT SUM(PROFIT) AS order_profit 
+            FROM CURATED_ORDERS 
+            GROUP BY ORDER_ID
+        )) AS sum_of_orders
+    FROM ${DB}.${SCHEMA_BRONZE}.${TABLE_01}
+)
+SELECT 
+    total_profit,
+    sum_of_orders,
+    CASE WHEN ABS(total_profit - sum_of_orders) < 0.01 THEN 'VALID' ELSE 'MISMATCH' END AS data_integrity
+FROM profit_check;
+
+-- RESUMEN DE CARGA
+SELECT
+    'CURATED_ORDERS' AS TABLE_NAME,
+    COUNT(*) AS RECORD_COUNT,
+    COUNT(DISTINCT ORDER_ID) AS UNIQUE_ORDERS,
+    COUNT(DISTINCT CUSTOMER_ID) AS UNIQUE_CUSTOMERS,
+    MIN(ORDER_DATE) AS MIN_DATE,
+    MAX(ORDER_DATE) AS MAX_DATE,
+    SUM(CASE WHEN IS_RETURNED = 1 THEN 1 ELSE 0 END) AS RETURNED_COUNT
+FROM CURATED_ORDERS
+
+UNION ALL
+
+SELECT 
+    'CURATED_PEOPLE' AS TABLE_NAME,
+    COUNT(*) AS RECORD_COUNT,
+    COUNT(DISTINCT REGION) AS UNIQUE_ORDERS,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+FROM CURATED_PEOPLE;
