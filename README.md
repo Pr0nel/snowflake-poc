@@ -123,8 +123,8 @@ SNOWFLAKE_PASSWORD=tu_contraseña
 SNOWFLAKE_ACCOUNT=tu_account_id
 SNOWFLAKE_ROLE=tu_rol
 SNOWFLAKE_WAREHOUSE_COMPUTE=COMPUTE_WH
-SNOWFLAKE_WAREHOUSE_ANALYTICS=COMPUTE_WH
-SNOWFLAKE_DATABASE=BPOLABS_POC
+SNOWFLAKE_WAREHOUSE_ANALYTICS=ANALYTICS_WH
+SNOWFLAKE_DATABASE=tu_database
 SNOWFLAKE_SCHEMA_BRONZE=RAW
 SNOWFLAKE_SCHEMA_SILVER=CURATED
 SNOWFLAKE_SCHEMA_GOLD=BUSINESS
@@ -322,7 +322,7 @@ SELECT * FROM BPOLABS_POC.BUSINESS.V_REGIONAL_PERFORMANCE;
 ### Validaciones Automáticas Ejecutadas
 
 1. **Archivo fuente existe:** Verifica ruta de Excel
-2. **Tablas destino existen:** Before ingesta
+2. **Tablas destino existen:** Valida antes de ingesta
 3. **Duplicados detectados:** Por PK
 4. **Integridad de columnas:** Validación de tipos
 5. **Deduplicación segura:** Tabla auxiliar + transacciones
@@ -333,25 +333,25 @@ SELECT * FROM BPOLABS_POC.BUSINESS.V_REGIONAL_PERFORMANCE;
 
 ### Mejoras Planificadas
 
-- [ ] Documentación de lineaje
-- [ ] Integración con Apache Airflow para orquestación automática
-- [ ] Migración a dbt para transformaciones SQL
-- [ ] Dashboard en Tableau/Looker conectado a vistas
+- Documentación de lineaje
+- Integración con Apache Airflow para orquestación automática
+- Migración a dbt para transformaciones SQL
+- Dashboard en Tableau/Looker conectado a vistas
 
 ### Optimizaciones
 
-- [ ] Incremental loads (cargar solo datos nuevos)
-- [ ] Clustering automático en Snowflake
-- [ ] Compresión de archivos en stages
-- [ ] Monitoreo de costs en Snowflake
+- Incremental loads (cargar solo datos nuevos)
+- Clustering automático en Snowflake
+- Compresión de archivos en stages
+- Monitoreo de costs en Snowflake
 
 ### Recomendaciones de Negocio
 
 Basado en los datos analizados:
 
-1. **Urgente:** Revisar 37.71% de productos no rentables
-2. **Estrategia:** Implementar dynamic pricing para margen negativo
-3. **Regional:** Replicar mejores prácticas de South region
+1. **Urgente:** Revisar 37.71% de productos no serían rentables
+2. **Estrategia:** Implementar dynamic pricing para intervenir margen negativo
+3. **Regional:** Replicar mejores prácticas de la region SOUTH
 4. **Operacional:** Investigar anomalía de jueves en 2017
 
 ---
